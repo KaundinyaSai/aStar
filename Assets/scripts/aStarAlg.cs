@@ -19,22 +19,7 @@ public class AStarAlg : MonoBehaviour
     }
 
     void Astar(Vector2 startPos, Vector2 targetPos){
-        List<Cell> visitedList = new();
-        List<Cell> openList = new();
-
-        Cell startCell = grid.cells[Mathf.FloorToInt(startPos.x), Mathf.FloorToInt(startPos.y)];
-
-        openList.Add(startCell);
-
-        while(openList.Count > 0){
-            for(int i = 0; i < openList.Count; i++){
-                for(int j = 0; j < i; j++){
-                    if(grid.cells[i,j].isWalkable && !openList.Contains(grid.cells[i,j]) && !visitedList.Contains(grid.cells[i,j])){
-                        openList.Add(grid.cells[i,j]);
-                    }
-                }
-            }
-        }
+        
     }
 
 

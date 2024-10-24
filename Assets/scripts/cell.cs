@@ -1,8 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-#nullable enable
-
 #pragma warning disable IDE1006 // Naming Styles
 public class Cell
 {
@@ -10,7 +8,7 @@ public class Cell
    public Vector2 position;
    public bool isWalkable;
 
-   public List<Cell?> neighbors = new();
+   public List<Cell> neighbors = new();
 
    public int gCost; // distance to target cell
    public int hCost; // distance from start cell

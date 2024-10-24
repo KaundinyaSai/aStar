@@ -36,63 +36,42 @@ public class GridInit : MonoBehaviour
                     cells[i, j].isWalkable = true; 
                 }
 
-                AddNeighbors(cells[i, j]);
-                /*string message = $"Cell at {cells[i, j].position} has the following neighbors: ";
-                foreach (var neighbor in cells[i, j].neighbors)
-                {
-                    if (neighbor != null)
-                        message += $"{neighbor.position}, ";  
-                   
-                }
+                AddNeighbors(cells[i ,j], 1.5f, length, height);
 
-                // Log the full message once
-                Debug.Log(message);*/
+                LogNeighbors(cells[i ,j]);
             }
         }
         
     }
 
-    void AddNeighbors(Cell cell){
-        float cellDiameter = cell.cellRadius * 2;
-        // List of offsets to find neighbors based on world positions
-        Vector2[] neighborOffsets = new Vector2[] {
-            new Vector2(-cellDiameter, 0),  new Vector2(cellDiameter, 0),   // Left, Right
-            new Vector2(0, -cellDiameter),  new Vector2(0, cellDiameter),   // Down, Up
-            new Vector2(-cellDiameter, -cellDiameter), new Vector2(-cellDiameter, cellDiameter),  // Bottom-left, Top-left
-            new Vector2(cellDiameter, -cellDiameter),  new Vector2(cellDiameter, cellDiameter)    // Bottom-right, Top-right
-        };
+    void AddNeighbors(Cell cell, float threshold, float gridWidth, float gridHeight){
+        for(int x = 0; x < gridWidth; x++){
+            for(int y = 0; y < gridHeight; y++){
+                float distance = Vector2.Distance(cell.position, cells[x, y].position);
 
-        foreach (Vector2 offset in neighborOffsets)
-        {
-            // Calculate the neighbor's world position by applying the offset to the current cell's position
-            Vector2 neighborPos = cell.position + offset;
-
-            Debug.Log($"Current cell: {cell.position}, Neighbor Position: {neighborPos}");
-
-            // Now find the corresponding grid indices for the neighbor position
-            Vector2Int neighborIndex = new Vector2Int(
-                Mathf.FloorToInt(neighborPos.x - startPosition.x),
-                Mathf.FloorToInt(neighborPos.y - startPosition.y)
-            );
-
-            // Check if the neighbor is within the grid bounds
-            if (neighborIndex.x >= 0 && neighborIndex.x < cells.GetLength(0) && neighborIndex.y >= 0 && neighborIndex.y < cells.GetLength(1))
-            {
-                Cell neighbor = cells[neighborIndex.x, neighborIndex.y];
-
-                // Only add walkable neighbors
-                if (neighbor != null && neighbor.isWalkable)
-                    cell.neighbors.Add(neighbor);
-                else{
-                    cell.neighbors.Add(null);
+                if(distance <= threshold){
+                    cell.neighbors.Add(cells[x, y]);
                 }
             }
-            else
-            {
-                // Add null if the neighbor is out of bounds
-                cell.neighbors.Add(null);
-            }
         }
+    }
+
+    void LogNeighbors(Cell cell) {
+        // Start with the header for the log 
+        string neighborLog = $"Neighbors of cell at ({cell.position.x}, {cell.position.y}): "; 
+
+        // Check if there are any neighbors
+        if (cell.neighbors.Count > 0) {
+            foreach (var neighbor in cell.neighbors) {
+                // Append each neighbor's position to the log
+                neighborLog += $"({neighbor.position.x}, {neighbor.position.y}) ";
+            }
+        } else {
+            neighborLog += "None"; // Handle the case where there are no neighbors
+        }
+
+        // Log the final string
+        Debug.Log(neighborLog);
     }
 
     
@@ -109,14 +88,4 @@ public class GridInit : MonoBehaviour
             Gizmos.DrawWireCube(cell.position, new Vector3(cell.cellRadius * 2, cell.cellRadius * 2));
         }
     }
-
-    void Update(){
-        if(Input.GetKeyDown(KeyCode.Space)){
-            foreach(Cell neighbor in cells[5,5].neighbors){
-                Debug.Log($"Neigbor at: {neighbor.position}");
-            }
-        }
-    }
-
-    
 }
