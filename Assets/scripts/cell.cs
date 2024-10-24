@@ -3,15 +3,12 @@ using System.Collections.Generic;
 
 #pragma warning disable IDE1006 // Naming Styles
 public class Cell
-{
-   public LayerMask objectLayer;
-   public Vector2 position;
-   public bool isWalkable;
-
-   public List<Cell> neighbors = new();
-
-   public int gCost; // distance to target cell
-   public int hCost; // distance from start cell
+    {
+    public LayerMask objectLayer;
+    public Vector2 position;
+    public bool isWalkable;
+    public int gCost; // distance to target cell
+    public int hCost; // distance from start cell
 
 
     public int fCost => gCost + hCost;

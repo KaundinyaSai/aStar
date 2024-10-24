@@ -1,91 +1,62 @@
-using System;
-using System.Linq; // For LINQ methods
+using System.Collections.Generic;
 using UnityEngine;
 
-public class GridInit : MonoBehaviour
-{
-    [HideInInspector] public Cell[,] cells; //2d cells array
-    public int length;
-    public int height;
-    public LayerMask obstacleLayer; 
-    public float cellRadius;
-    public Vector2Int startPosition;
-    public float checkOffset;
-    void Start(){
-        
-        PopulateGrid();
-    }
-
-    void PopulateGrid() {
-        cells = new Cell[length, height];
-        for (int i = 0; i < length; i++) {
-            for (int j = 0; j < height; j++) {
-                Vector2 cellPosition = new Vector2(i, j) + startPosition; // Set the cell position
-                cellPosition += new Vector2(cellRadius, cellRadius); // Offset by the cell radius to make it start at bottom right
-
-                cells[i, j] = new Cell(cellPosition)
-                {
-                    position = cellPosition,
-                    cellRadius = cellRadius
-                };
-
-                // Check for obstacles within the cell radius  
-                if (Physics2D.OverlapCircle(cellPosition, cells[i, j].cellRadius - checkOffset, obstacleLayer)) {
-                    cells[i, j].isWalkable = false;
-                } else {
-                    cells[i, j].isWalkable = true; 
-                }
-
-                AddNeighbors(cells[i ,j], 1.5f, length, height);
-
-                LogNeighbors(cells[i ,j]);
-            }
-        }
-        
-    }
-
-    void AddNeighbors(Cell cell, float threshold, float gridWidth, float gridHeight){
-        for(int x = 0; x < gridWidth; x++){
-            for(int y = 0; y < gridHeight; y++){
-                float distance = Vector2.Distance(cell.position, cells[x, y].position);
-
-                if(distance <= threshold){
-                    cell.neighbors.Add(cells[x, y]);
-                }
-            }
-        }
-    }
-
-    void LogNeighbors(Cell cell) {
-        // Start with the header for the log 
-        string neighborLog = $"Neighbors of cell at ({cell.position.x}, {cell.position.y}): "; 
-
-        // Check if there are any neighbors
-        if (cell.neighbors.Count > 0) {
-            foreach (var neighbor in cell.neighbors) {
-                // Append each neighbor's position to the log
-                neighborLog += $"({neighbor.position.x}, {neighbor.position.y}) ";
-            }
-        } else {
-            neighborLog += "None"; // Handle the case where there are no neighbors
-        }
-
-        // Log the final string
-        Debug.Log(neighborLog);
-    }
-
+public class GridInit : MonoBehaviour{
     
-    void OnDrawGizmosSelected(){
-        if (cells == null || cells.Length == 0) {
-            PopulateGrid(); // Populate the grid for checking
+    Vector2 startPosition;
+
+    public int lenght;
+    public int height;
+
+    public float cellRadius;
+    float cellDiameter => cellRadius * 2;
+    Grid grid;
+    void Start(){
+       startPosition = transform.position;
+       InstantiateGrid();
+    }
+
+    void InstantiateGrid(){
+        grid = new(startPosition, lenght, height);
+
+        grid.PopulateGrid(cellRadius, startPosition);
+        for(int x = 0; x < lenght; x++){
+            for(int y = 0; y < height; y++){
+                grid.AddNeighbors(grid.cells[x, y], 1.5f);
+            }
         }
+
+         
+        for (int x = 0; x < lenght; x++) {
+            for (int y = 0; y < height; y++) {
+                Cell cell = grid.cells[x, y];
+                string logMessage = $"Neighbors of cell ({x}, {y}): ";
+
+                // Build the neighbor list string
+                List<string> neighborCoords = new List<string>();
+                foreach (var neighbor in grid.neighbors[cell]) {
+                    neighborCoords.Add($"({neighbor.position.x}, {neighbor.position.y})");
+                }
+
+                // Join the coordinates and add to the log
+                logMessage += string.Join(", ", neighborCoords);
+                Debug.Log(logMessage);
+            }
+        }
+    }
+
+    void CheckCellStatus(Cell cell){
         
-        Gizmos.DrawWireCube((Vector2)transform.position - startPosition, new Vector3(length, height));
+    }
 
-        foreach(Cell cell in cells){
-            Gizmos.color = cell.isWalkable ? Color.green : Color.red;
+    void OnDrawGizmos(){
+        if(Application.isPlaying){
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(startPosition, new Vector2(lenght, height));
 
-            Gizmos.DrawWireCube(cell.position, new Vector3(cell.cellRadius * 2, cell.cellRadius * 2));
+            foreach(Cell cell in grid.neighbors.Keys){
+                Gizmos.DrawWireCube(cell.position, new Vector2(cellDiameter, cellDiameter));
+            }
         }
     }
 }
