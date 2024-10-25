@@ -10,10 +10,20 @@ public class GridInit : MonoBehaviour{
 
     public float cellRadius;
     float cellDiameter => cellRadius * 2;
+
+    public LayerMask obstacleLayer;
+    public float cellCheckRadius;
     Grid grid;
+
+    AStarAlg aStarAlg;
+
+    public Vector2 startPosForAStar;
+    public Vector2 targetPosForAStar;
     void Start(){
        startPosition = new Vector2Int((int)transform.position.x, (int)transform.position.y);
        InstantiateGrid();
+
+       
     }
 
     void InstantiateGrid(){
@@ -23,11 +33,12 @@ public class GridInit : MonoBehaviour{
         for(int x = 0; x < lenght; x++){
             for(int y = 0; y < height; y++){
                 grid.AddNeighbors(grid.cells[x, y], 1.5f, startPosition);
+                CheckCellStatus(grid.cells[x, y]);
             }
         }
 
          
-        for (int x = 0; x < lenght; x++) {
+        /*for (int x = 0; x < lenght; x++) {
             for (int y = 0; y < height; y++) {
                 Cell cell = grid.cells[x, y];
                 string logMessage = $"Neighbors of cell ({x}, {y}): ";
@@ -42,11 +53,19 @@ public class GridInit : MonoBehaviour{
                 logMessage += string.Join(", ", neighborCoords);
                 Debug.Log(logMessage);
             }
-        }
+        }*/
+
+        aStarAlg = new();
+
+        aStarAlg.Astar(grid, startPosForAStar, targetPosForAStar);
     }
 
     void CheckCellStatus(Cell cell){
-        
+        if(Physics2D.OverlapCircle(cell.position, cellCheckRadius, obstacleLayer)){
+            cell.isWalkable = false;
+        }else{
+            cell.isWalkable = true;
+        }
     }
 
     void OnDrawGizmos(){
@@ -55,6 +74,8 @@ public class GridInit : MonoBehaviour{
             Gizmos.DrawWireCube(new Vector3(startPosition.x, startPosition.y), new Vector2(lenght, height));
 
             foreach(Cell cell in grid.neighbors.Keys){
+                Gizmos.color = cell.isWalkable ? Color.green : Color.red;
+                
                 Gizmos.DrawWireCube(cell.position, new Vector2(cellDiameter, cellDiameter));
             }
         }

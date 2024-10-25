@@ -7,11 +7,12 @@ public class Cell
     public LayerMask objectLayer;
     public Vector2 position;
     public bool isWalkable;
-    public int gCost; // distance to target cell
-    public int hCost; // distance from start cell
+    public float gCost; // distance from start Cell
+    public float hCost; // distance to target Cell
 
+    public Cell parent; // For path reconstruction
 
-    public int fCost => gCost + hCost;
+    public float fCost => gCost + hCost;
 
     public float cellRadius; //Even though each cell is a square. Radius is just half the length of the cell
 
