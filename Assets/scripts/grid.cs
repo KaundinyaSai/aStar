@@ -19,18 +19,18 @@ public class Grid {
         cells = new Cell[width, height];
     }
 
-    public void PopulateGrid(float cellRadius, Vector2 gridStartingPoint){
+    public void PopulateGrid(float cellRadius, Vector2Int gridStartingPoint){
         for(int x = 0; x < width; x++){
             for(int y = 0; y < height; y++){
-                cells[x, y] = new Cell(new Vector2(x, y));
+                cells[x, y] = new Cell(new Vector2(x, y) + gridStartingPoint);
                 neighbors.Add(cells[x, y], new List<Cell>());
-                cells[x, y].position = gridStartingPoint + new Vector2(x, y);
+                
                 cells[x, y].cellRadius = cellRadius;
             }
         }
     }
 
-    public void AddNeighbors(Cell cell, float threshold) {
+    public void AddNeighbors(Cell cell, float threshold, Vector2Int startingPoint) {
         int x = (int)cell.position.x; // Get the integer x position
         int y = (int)cell.position.y; // Get the integer y position
 
@@ -47,11 +47,14 @@ public class Grid {
         };
 
         foreach (var neighborPos in neighborPositions) {
+            int neighborIndexX = (int)neighborPos.x ;
+            int neighborIndexY = (int)neighborPos.y ;
+            
             // Check if the neighbor is within grid bounds
             if (neighborPos.x >= 0 && neighborPos.x < width && 
                 neighborPos.y >= 0 && neighborPos.y < height) {
 
-                Cell neighbor = cells[(int)neighborPos.x, (int)neighborPos.y];
+                Cell neighbor = cells[neighborIndexX, neighborIndexY];
                 
                 // Add to the neighbor list if within the threshold distance
                 float distance = Vector2.Distance(cell.position, neighbor.position); 

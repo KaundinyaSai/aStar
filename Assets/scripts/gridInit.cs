@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GridInit : MonoBehaviour{
     
-    Vector2 startPosition;
+    Vector2Int startPosition;
 
     public int lenght;
     public int height;
@@ -12,7 +12,7 @@ public class GridInit : MonoBehaviour{
     float cellDiameter => cellRadius * 2;
     Grid grid;
     void Start(){
-       startPosition = transform.position;
+       startPosition = new Vector2Int((int)transform.position.x, (int)transform.position.y);
        InstantiateGrid();
     }
 
@@ -22,7 +22,7 @@ public class GridInit : MonoBehaviour{
         grid.PopulateGrid(cellRadius, startPosition);
         for(int x = 0; x < lenght; x++){
             for(int y = 0; y < height; y++){
-                grid.AddNeighbors(grid.cells[x, y], 1.5f);
+                grid.AddNeighbors(grid.cells[x, y], 1.5f, startPosition);
             }
         }
 
@@ -52,7 +52,7 @@ public class GridInit : MonoBehaviour{
     void OnDrawGizmos(){
         if(Application.isPlaying){
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(startPosition, new Vector2(lenght, height));
+            Gizmos.DrawWireCube(new Vector3(startPosition.x, startPosition.y), new Vector2(lenght, height));
 
             foreach(Cell cell in grid.neighbors.Keys){
                 Gizmos.DrawWireCube(cell.position, new Vector2(cellDiameter, cellDiameter));
